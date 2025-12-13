@@ -145,6 +145,11 @@ class Program
         int[] noImprovement = new int[BEE_COUNT];
         var bees = InitializeBees(BEE_COUNT);
 
+        double[] bestPosition = new double[2];
+        int initialBestIndex = GetBestBeeIndex(bees);
+        bestPosition[0] = bees[initialBestIndex, 0];
+        bestPosition[1] = bees[initialBestIndex, 1];
+
         Console.WriteLine("--- Artificial Bee Colony (ABC) BEMUTATÓ ---");
         Console.WriteLine($"Indítás {BEE_COUNT} méhhel, {MAX_ITERATIONS} iterációra.\n");
 
@@ -154,21 +159,26 @@ class Program
             OnlookerBeePhase(bees, noImprovement);
             ScoutBeePhase(bees, noImprovement, FAIL_LIMIT);
 
-            int bestIndex = GetBestBeeIndex(bees);
-            double bestF = Function(bees[bestIndex, 0], bees[bestIndex, 1]);
+            int currentBestIndex = GetBestBeeIndex(bees);
+            double currentBestF = Function(bees[currentBestIndex, 0], bees[currentBestIndex, 1]);
 
-            if (iter % 10 == 0 || iter == 1) 
+            if (currentBestF < Function(bestPosition[0], bestPosition[1]))
             {
-                Console.WriteLine($"Iteráció {iter:00}: Legjobb f={bestF:0.00000} (x={bees[bestIndex, 0]:0.00}, y={bees[bestIndex, 1]:0.00})");
+                bestPosition[0] = bees[currentBestIndex, 0];
+                bestPosition[1] = bees[currentBestIndex, 1];
+            }
+
+            if (iter % 10 == 0 || iter == 1)
+            {
+                Console.WriteLine($"Iteráció {iter:00}: Legjobb f={currentBestF:0.00000} (x={bees[currentBestIndex, 0]:0.00}, y={bees[currentBestIndex, 1]:0.00})");
             }
         }
 
-        int finalBestIndex = GetBestBeeIndex(bees);
-        double finalBestF = Function(bees[finalBestIndex, 0], bees[finalBestIndex, 1]);
+        double finalBestF = Function(bestPosition[0], bestPosition[1]);
 
         Console.WriteLine($"\n--- A végeredmény ---");
         Console.WriteLine($"Legjobb talált minimum f(x,y)={finalBestF:0.00000}");
-        Console.WriteLine($"Pozíció: x={bees[finalBestIndex, 0]:0.000}, y={bees[finalBestIndex, 1]:0.000}");
+        Console.WriteLine($"Pozíció: x={bestPosition[0]:0.000}, y={bestPosition[1]:0.000}");
         Console.ReadLine();
     }
 }
